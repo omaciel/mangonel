@@ -6,7 +6,7 @@ import sys
 import time
 
 try:
-    from katello.client.api.repo import RepoAPI    
+    from katello.client.api.repo import RepoAPI
 except ImportError, e:
     print "Please install Katello CLI package."
     sys.exit(-1)
@@ -14,7 +14,7 @@ except ImportError, e:
 
 class Repository():
     api = RepoAPI()
-    
+
     def create_repository(self, org, prd, url, name=None, label=None, unprotected=True, gpgkey=None, nogpgkey=None):
 
         if name is None:
@@ -23,13 +23,21 @@ class Repository():
         if label is None:
             label = "label-%s" % name.lower()
 
-        return self.api.create(org['label'], prd['id'], name, label, url, unprotected, gpgkey, nogpgkey)
+        resp = self.api.create(org['label'], prd['id'], name, label, url, unprotected, gpgkey, nogpgkey)
+
+        repositories = self.api.repos_by_product(org['label'], prd['id'])
+        repo = [repo for repo in repositories if repo['name'] == name]
+
+        if repo:
+            repo = repo[0]
+
+        return repo
 
 
     def delete_repository(self, rId):
         return self.api.delete(rId)
 
-    
+
     def repository(self, rId):
         return self.api.repo(rId)
 
