@@ -29,7 +29,7 @@ class TestSystemGroups(BaseTest):
 
         (org, env) = self._create_org_env()
 
-        for name in valid_names_list:
+        for name in valid_names_list():
             grp = self.sys_grp_api.create(org, name=name)
             self.assertEqual(grp, self.sys_grp_api.system_group(org, grp['id']))
 
