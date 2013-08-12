@@ -5,8 +5,8 @@ from basetest import BaseTest
 
 from katello.client.server import ServerRequestError
 from mangonel.common import generate_name
-from mangonel.common import VALID_NAMES
-from mangonel.common import INVALID_NAMES
+from mangonel.common import valid_names_list
+from mangonel.common import invalid_names_list
 
 class TestOrganizations(BaseTest):
 
@@ -71,7 +71,7 @@ class TestOrganizations(BaseTest):
     def test_delete_org_1(self):
         "Delete organizations with valid names."
 
-        for name in VALID_NAMES:
+        for name in valid_names_list():
            org = self.org_api.create(name=name)
            self.logger.debug("Created organization %s" % org['name'])
            self.assertEqual(org, self.org_api.organization(org['name']), 'Failed to create and retrieve org.')
@@ -83,13 +83,13 @@ class TestOrganizations(BaseTest):
     def test_invalid_org_names(self):
         "These organization names are not valid."
 
-        for name in INVALID_NAMES:
+        for name in invalid_names_list():
             self.assertRaises(ServerRequestError, lambda: self.org_api.create(name=name, label="label-%s" % generate_name(2)))
 
     def test_valid_org_names(self):
         "These organization names are valid."
 
-        for name in VALID_NAMES:
+        for name in valid_names_list():
             org = self.org_api.create(name=name, label="label-%s" % generate_name(2))
             self.logger.debug("Created organization %s" % org['name'])
             self.assertEqual(org, self.org_api.organization(org['label']))

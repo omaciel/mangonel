@@ -6,8 +6,8 @@ from basetest import BaseTest
 
 from katello.client.server import ServerRequestError
 from mangonel.common import generate_name
-from mangonel.common import VALID_NAMES
-from mangonel.common import INVALID_NAMES
+from mangonel.common import valid_names_list
+from mangonel.common import invalid_names_list
 
 class TestSystemGroups(BaseTest):
 
@@ -29,7 +29,7 @@ class TestSystemGroups(BaseTest):
 
         (org, env) = self._create_org_env()
 
-        for name in VALID_NAMES:
+        for name in valid_names_list:
             grp = self.sys_grp_api.create(org, name=name)
             self.assertEqual(grp, self.sys_grp_api.system_group(org, grp['id']))
 
@@ -38,7 +38,7 @@ class TestSystemGroups(BaseTest):
 
         (org, env) = self._create_org_env()
 
-        for name in INVALID_NAMES:
+        for name in invalid_names_list():
             self.assertRaises(ServerRequestError, lambda: self.sys_grp_api.create(org, name=name))
 
     def test_invalid_max_systems(self):
@@ -97,7 +97,7 @@ class TestSystemGroups(BaseTest):
 
         (org, env) = self._create_org_env()
 
-        for name in VALID_NAMES:
+        for name in valid_names_list():
             grp = self.sys_grp_api.create(org, name=name)
             self.assertEqual(grp, self.sys_grp_api.system_group(org, grp['id']))
             self.logger.debug("Created system group '%s'" % grp['name'])
