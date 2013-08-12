@@ -2,10 +2,15 @@ import logging
 import logging.config
 
 import os
+import sys
 import time
 import unittest
 
-from katello.client.server import ServerRequestError
+try:
+    from katello.client.server import ServerRequestError
+except ImportError, e:
+    print "Please install the Katello CLI package."
+    sys.exit(-1)
 
 from mangonel.activationkey import ActivationKey
 from mangonel.changeset import Changeset
