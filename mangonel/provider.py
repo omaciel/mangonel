@@ -36,8 +36,17 @@ class Provider(ProviderAPI):
     def sync(self, pId):
         task = super(Provider, self).sync(pId)[0]
 
-        while task['state'] != 'finished':
-            logger.debug("Synchronizing...")
+        for i in range(MAX_ATTEMPTS):
             task = super(Provider, self).last_sync_status(pId)
 
+            if task['state'] == 'finished' or task['state'] == 'error':
+                break
+
+            logger.info("Synchronizing provider...")
+            logger.debug(task['state'])
+            time.sleep(REQUEST_DELAY)
+        else:
+            task = None
+
         return task
+

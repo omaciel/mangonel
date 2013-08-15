@@ -39,7 +39,19 @@ class Changeset(ChangesetAPI):
         applyTask = super(Changeset, self).apply(chsId)
 
         task = self.task_api.status(applyTask['uuid'])
-        while task['state'] != 'finished':
-            logger.debug("Promoting content...")
+
+        for i in range(MAX_ATTEMPTS):
             task = self.task_api.status(applyTask['uuid'])
+
+            if task['state'] == 'finished' or task['state'] == 'error':
+                break
+
+            logger.info("Promoting content...")
+            logger.debug(task['state'])
+            time.sleep(REQUEST_DELAY)
+        else:
+            task = None
+
+        return task
+
 

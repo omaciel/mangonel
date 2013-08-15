@@ -54,9 +54,20 @@ class ContentViewDefinition(ContentViewDefinitionAPI):
         ptask = super(ContentViewDefinition, self).publish(org['label'], cvdId, name, label, description)
 
         task = self.task_api.status(ptask['uuid'])
-        while task['state'] != 'finished':
-            logger.debug("Publishing content view description %s" % name)
+
+        for i in range(MAX_ATTEMPTS):
             task = self.task_api.status(ptask['uuid'])
+
+            if task['state'] == 'finished' or task['state'] == 'error':
+                break
+
+            logger.info("Publishing content view description %s" % name)
+            logger.debug(task['state'])
+            time.sleep(REQUEST_DELAY)
+        else:
+            task = None
+
+        return task
 
     def clone(self, org, cvdId, name=None, label=None, description=None):
 
