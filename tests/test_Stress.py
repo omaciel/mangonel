@@ -3,50 +3,9 @@ from basetest import BaseTest
 from katello.client.server import ServerRequestError
 
 from mangonel.common import queued_work
-
-from mangonel.changeset import Changeset
-from mangonel.contentview import ContentView
-from mangonel.contentviewdefinition import ContentViewDefinition
-from mangonel.environment import Environment
-from mangonel.organization import Organization
-from mangonel.product import Product
-from mangonel.provider import Provider
-from mangonel.repository import Repository
-from mangonel.system import System
-from mangonel.server import Server
-
-import time
-import unittest
+from mangonel.common import wait_for_task
 
 class TestStress(BaseTest):
-
-    def setUp(self):
-        BaseTest.setUp(self)
-
-        self.server = Server(host=self.host,
-                       project=self.project,
-                       username=self.user,
-                       password=self.password,
-                       port=self.port)
-        self.org_api = Organization()
-        self.chs_api = Changeset()
-        self.cv_api = ContentView()
-        self.cvd_api = ContentViewDefinition()
-        self.env_api = Environment()
-        self.prd_api = Product()
-        self.prv_api = Provider()
-        self.repo_api = Repository()
-        self.sys_api = System()
-
-        self.start_time = time.time()
-
-
-    def tearDown(self):
-        self.server = None
-
-        self.ellapsed_time = time.time() - self.start_time
-        self.logger.info("Test ellapsed time: %s" % self.ellapsed_time)
-
 
     def test_stress_128_1(self):
         "Creates a new organization with environment and register a system."
@@ -80,7 +39,10 @@ class TestStress(BaseTest):
         self.assertEqual(repo, self.repo_api.repository(repo['id']))
 
         # Sync
-        self.prv_api.sync(prv['id'])
+        task_id = self.prv_api.sync(prv['id'])
+        task = wait_for_task(task_id[0]['uuid'])
+        self.assertNotEqual(task, None)
+
         self.assertEqual(self.prv_api.provider(prv['id'])['sync_state'], 'finished')
         self.logger.debug("Finished synchronizing Provider1")
 
