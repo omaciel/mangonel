@@ -10,6 +10,7 @@ import string
 import uuid
 import time
 
+from katello.client.api.task_status import TaskStatusAPI
 from threading import Thread
 from Queue import Queue
 
@@ -21,6 +22,27 @@ packages = json.load(open(os.path.join(os.path.dirname(__file__), 'packages.json
 
 REQUEST_DELAY = 10
 MAX_ATTEMPTS = 720
+
+
+def wait_for_task(task_uuid):
+    "Waits for a task to complete, error out or timeout"
+
+    task_api = TaskStatusAPI()
+
+    for i in range(MAX_ATTEMPTS):
+
+        task = task_api.status(task_uuid)
+        logger.debug(task)
+
+        if not task['pending?']:
+            break
+
+        logger.info("Waiting for task...")
+        time.sleep(REQUEST_DELAY)
+    else:
+        task = None
+
+    return task
 
 def queued_work(worker_method, org, env, max_systems, num_threads):
     def worker():
