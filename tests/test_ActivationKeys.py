@@ -2,6 +2,7 @@ from basetest import BaseTest
 
 from katello.client.server import ServerRequestError
 from mangonel.common import generate_name
+from mangonel.common import wait_for_task
 
 class TestActivationKeys(BaseTest):
 
@@ -46,7 +47,10 @@ class TestActivationKeys(BaseTest):
         self.assertEqual(repo, self.repo_api.repo(repo['id']))
 
         # Sync
-        self.prv_api.sync(prv['id'])
+        task_id = self.prv_api.sync(prv['id'])
+        task = wait_for_task(task_id[0]['uuid'])
+        self.assertNotEqual(task, None)
+
         self.assertEqual(self.prv_api.provider(prv['id'])['sync_state'], 'finished')
         self.logger.debug("Finished synchronizing Provider1")
 
@@ -202,7 +206,10 @@ class TestActivationKeys(BaseTest):
         self.assertEqual(repo, self.repo_api.repo(repo['id']))
 
         # Sync
-        self.prv_api.sync(prv['id'])
+        task_id = self.prv_api.sync(prv['id'])
+        task = wait_for_task(task_id[0]['uuid'])
+        self.assertNotEqual(task, None)
+
         self.assertEqual(self.prv_api.provider(prv['id'])['sync_state'], 'finished')
         self.logger.debug("Finished synchronizing Provider1")
 
@@ -251,7 +258,10 @@ class TestActivationKeys(BaseTest):
         self.assertEqual(repo, self.repo_api.repo(repo['id']))
 
         # Sync
-        self.prv_api.sync(prv['id'])
+        task_id = self.prv_api.sync(prv['id'])
+        task = wait_for_task(task_id[0]['uuid'])
+        self.assertNotEqual(task, None)
+
         self.assertEqual(self.prv_api.provider(prv['id'])['sync_state'], 'finished')
         self.logger.debug("Finished synchronizing Provider1")
 
@@ -345,7 +355,10 @@ class TestActivationKeys(BaseTest):
         self.assertEqual(repo, self.repo_api.repo(repo['id']))
 
         # Sync
-        self.prv_api.sync(prv['id'])
+        task_id = self.prv_api.sync(prv['id'])
+        task = wait_for_task(task_id[0]['uuid'])
+        self.assertNotEqual(task, None)
+
         self.assertEqual(self.prv_api.provider(prv['id'])['sync_state'], 'finished')
         self.logger.debug("Finished synchronizing Provider1")
 
