@@ -21,6 +21,7 @@ TESTS = [
     'test_ContentViewDefinitions',
     'test_Environments',
     'test_Organizations',
+    'test_Providers',
     'test_SystemGroups',
     'test_Systems',
     'test_Users',
