@@ -1,3 +1,5 @@
+import time
+
 from basetest import BaseTest
 
 from katello.client.server import ServerRequestError
@@ -5,10 +7,14 @@ from katello.client.server import ServerRequestError
 from mangonel.common import queued_work
 from mangonel.common import wait_for_task
 
+JOB_SAMPLES = [128, 256, 512, 1024, 2048, 4096]
+JOB_THREADS = [1, 2, 4, 8, 16]
+
+
 class TestStress(BaseTest):
 
-    def test_stress_128_1(self):
-        "Creates a new organization with environment and register a system."
+    def _generate_content(self):
+        "Creates a new organization with environment and real content."
 
         org = self.org_api.create()
         self.logger.debug("Created organization %s" % org['name'])
@@ -16,15 +22,15 @@ class TestStress(BaseTest):
 
         env1 = self.env_api.create(org, 'Dev', 'Library')
         self.logger.debug("Created environmemt %s" % env1['name'])
-        self.assertEqual(env1, self.env_api.environment_by_name(org, 'Dev'))
+        self.assertEqual(env1, self.env_api.environment_by_name(org['label'], 'Dev'))
 
         env2 = self.env_api.create(org, 'Testing', 'Dev')
         self.logger.debug("Created environmemt %s" % env2['name'])
-        self.assertEqual(env2, self.env_api.environment_by_name(org, 'Testing'))
+        self.assertEqual(env2, self.env_api.environment_by_name(org['label'], 'Testing'))
 
         env3 = self.env_api.create(org, 'Release', 'Testing')
         self.logger.debug("Created environmemt %s" % env3['name'])
-        self.assertEqual(env3, self.env_api.environment_by_name(org, 'Release'))
+        self.assertEqual(env3, self.env_api.environment_by_name(org['label'], 'Release'))
 
         prv = self.prv_api.create(org, 'Provider1')
         self.logger.debug("Created custom provider Provider1")
@@ -36,7 +42,7 @@ class TestStress(BaseTest):
 
         repo = self.repo_api.create(org, prd, 'http://hhovsepy.fedorapeople.org/fakerepos/zoo4/', 'Repo1')
         self.logger.debug("Created repositiry Repo1")
-        self.assertEqual(repo, self.repo_api.repository(repo['id']))
+        self.assertEqual(repo, self.repo_api.repo(repo['id']))
 
         # Sync
         task_id = self.prv_api.sync(prv['id'])
@@ -64,17 +70,72 @@ class TestStress(BaseTest):
         self.logger.debug("Added %s to changeset" % pcvd['name'])
         self.chs_api.apply(chs['id'])
 
-        system_time = time.time()
-        pools = self.org_api.pools(org['label'])
+        return (org, env1)
 
-        all_systems = queued_work(self.sys_api.create, org, env1, 128, 2)
-        for sys1 in all_systems:
-            self.assertEqual(sys1['uuid'], self.sys_api.system(sys1['uuid'])['uuid'])
+    def test_organizations(self):
 
-            for pool in pools:
-                self.sys_api.subscribe(sys1['uuid'], pool['id'])
-                self.logger.debug("Subscribe system to pool %s" % pool['id'])
+        for outter in JOB_SAMPLES:
+            for inner in JOB_THREADS:
 
-        total_system_time = time.time() - system_time
-        print "Total time spent for systems: %f" % total_system_time
-        print "Mean time: %f" % (total_system_time / 128)
+                start_time = time.time()
+
+                all_organizations = queued_work(self.org_api.create, outter, inner)
+
+                end_time = time.time()
+
+                for org in all_organizations:
+                    self.assertTrue(self.org_api.organization(org['name']))
+
+                total_system_time = end_time - start_time
+                self.logger.info("Total time spent for %s organizations using %s threads: %f" % (outter, inner, total_system_time))
+                self.logger.info("Mean time: %f" % (total_system_time / outter))
+
+    def test_providers(self):
+
+        for outter in JOB_SAMPLES:
+            for inner in JOB_THREADS:
+
+                org = self.org_api.create()
+                self.logger.info("Created organization %s" % org['name'])
+                self.assertEqual(org, self.org_api.organization(org['name']), 'Failed to create and retrieve org.')
+
+                env = self.env_api.environment_by_name(org['label'], 'Library')
+
+                start_time = time.time()
+
+                all_providers = queued_work(self.prv_api.create, outter, inner, org)
+
+                end_time = time.time()
+
+                for prv in all_providers:
+                    self.assertEqual(prv, self.prv_api.provider(prv['id']))
+
+                total_system_time = end_time - start_time
+                self.logger.info("Total time spent for %s providers using %s threads: %f" % (outter, inner, total_system_time))
+                self.logger.info("Mean time: %f" % (total_system_time / outter))
+
+    def test_systems(self):
+
+        for outter in JOB_SAMPLES:
+            for inner in JOB_THREADS:
+
+                (org, env) = self._generate_content()
+
+                start_time = time.time()
+
+                all_systems = queued_work(self.sys_api.create, outter, inner, org, env)
+
+                end_time = time.time()
+
+                for sys1 in all_systems:
+                    self.assertEqual(sys1['uuid'], self.sys_api.system(sys1['uuid'])['uuid'])
+
+                    pools = self.org_api.pools(org['label'])
+
+                    for pool in pools:
+                        self.sys_api.subscribe(sys1['uuid'], pool['id'])
+                        self.logger.debug("Subscribe system to pool %s" % pool['id'])
+
+                total_system_time = end_time - start_time
+                self.logger.info("Total time spent for %s systems using %s threads: %f" % (outter, inner, total_system_time))
+                self.logger.info("Mean time: %f" % (total_system_time / outter))

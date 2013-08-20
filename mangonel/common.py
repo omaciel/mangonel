@@ -44,7 +44,7 @@ def wait_for_task(task_uuid):
 
     return task
 
-def queued_work(worker_method, org, env, max_systems, num_threads):
+def queued_work(worker_method, max_systems, num_threads, *args):
     def worker():
          while True:
              size = q.qsize()
@@ -52,7 +52,7 @@ def queued_work(worker_method, org, env, max_systems, num_threads):
                  logger.debug("%s items left to process" % size)
              item = q.get()
              try:
-                 return_list.append(worker_method(org, env))
+                 return_list.append(worker_method(*args))
              except Exception, e:
                 logger.debug("Exception from worker: %s" % e)
 
@@ -67,7 +67,7 @@ def queued_work(worker_method, org, env, max_systems, num_threads):
         t.start()
 
     for i in range(0, max_systems):
-        q.put(org, env)
+        q.put(args)
 
     q.join()
 
