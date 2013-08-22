@@ -1,4 +1,6 @@
 from basetest import BaseTest
+from basetest import headpin_only
+from basetest import katello_only
 
 from katello.client.server import ServerRequestError
 from mangonel.common import generate_name
@@ -19,6 +21,7 @@ class TestProviders(BaseTest):
 
         return (org, library)
 
+    @katello_only()
     def test_create_provider_1(self):
         "Creates a basic provider"
 
@@ -28,6 +31,7 @@ class TestProviders(BaseTest):
         self.logger.info("Created custom provider %s" % prv['name'])
         self.assertEqual(prv, self.prv_api.provider(prv['id']))
 
+    @katello_only()
     def test_delete_provider_1(self):
         "Creates a basic provider, then deletes it"
 
@@ -41,6 +45,15 @@ class TestProviders(BaseTest):
         self.logger.info("Deleted custom provider %s" % prv['name'])
         self.assertRaises(ServerRequestError, lambda: self.prv_api.provider(prv['id']))
 
+    def test_delete_rh_provider_1(self):
+        "Cannot delete the RH provider"
+
+        (org, env) = self._generic_organization()
+
+        rh_provider = self.prv_api.provider_by_name(org['label'], 'Red Hat')
+        self.assertRaises(ServerRequestError, lambda: self.prv_api.delete(rh_provider['id']))
+
+    @katello_only()
     def test_update_provider_1(self):
         "Updates the provider's name"
 
@@ -55,7 +68,8 @@ class TestProviders(BaseTest):
         updt_prv = self.prv_api.provider(prv['id'])
         self.assertEqual(new_name, updt_prv['name'])
 
-    def test_update_provider_1(self):
+    @katello_only()
+    def test_update_provider_2(self):
         "Updates the provider's description"
 
         (org, env) = self._generic_organization()
@@ -69,7 +83,8 @@ class TestProviders(BaseTest):
         updt_prv = self.prv_api.provider(prv['id'])
         self.assertEqual(new_description, updt_prv['description'])
 
-    def test_update_provider_1(self):
+    @katello_only()
+    def test_update_provider_3(self):
         "Updates the provider's repo url"
 
         (org, env) = self._generic_organization()
@@ -83,6 +98,7 @@ class TestProviders(BaseTest):
         updt_prv = self.prv_api.provider(prv['id'])
         self.assertEqual(new_url, updt_prv['repository_url'])
 
+    @katello_only()
     def test_providers_by_org_1(self):
         "Fetches only the providers for an organization"
 
@@ -95,23 +111,36 @@ class TestProviders(BaseTest):
         self.logger.info("Created custom provider %s" % prv['name'])
         self.assertEqual(prv, self.prv_api.provider(prv['id']))
 
-        # One custom provider
+        # One CUSTOM provider + RH
         self.assertEqual(len(self.prv_api.providers_by_org(org['label'])), 2)
 
         prv = self.prv_api.create(org)
         self.logger.info("Created custom provider %s" % prv['name'])
         self.assertEqual(prv, self.prv_api.provider(prv['id']))
 
-        # Two custom providers
+        # Two CUSTOM providers + RH
         self.assertEqual(len(self.prv_api.providers_by_org(org)), 3)
 
         # Delete one provider
         self.prv_api.delete(prv['id'])
 
-        # Back to only one custom provider
+        # Back to only one CUSTOM provider + RH
         self.assertEqual(len(self.prv_api.providers_by_org(org['label'])), 2)
 
-    def test_provider_by_name(self):
+    def test_provider_by_name_1(self):
+        "Fetches the Red Hat provider by name"
+
+        (org1, env1) = self._generic_organization()
+        (org2, env2) = self._generic_organization()
+
+        self.assertTrue(self.prv_api.provider_by_name(org1['label'], 'Red Hat'))
+
+        self.assertTrue(self.prv_api.provider_by_name(org2['label'], 'Red Hat'))
+
+        self.assertFalse(self.prv_api.provider_by_name(org1['label'], 'Foo'))
+
+    @katello_only()
+    def test_provider_by_name_2(self):
         "Fetches providers by name"
 
         (org1, env1) = self._generic_organization()
@@ -134,6 +163,7 @@ class TestProviders(BaseTest):
         prv = self.prv_api.provider_by_name(org1['label'], prv2['name'])
         self.assertEqual(prv, None)
 
+    @katello_only()
     def test_repo_discovery_1(self):
         "Repo discovery"
 
