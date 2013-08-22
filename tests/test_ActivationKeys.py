@@ -43,7 +43,7 @@ class TestActivationKeys(BaseTest):
         self.assertEqual(prd['id'], self.prd_api.product(org, prd['id'])['id'])
 
         repo = self.repo_api.create(org, prd, 'http://hhovsepy.fedorapeople.org/fakerepos/zoo4/', 'Repo1')
-        self.logger.debug("Created repositiry Repo1")
+        self.logger.debug("Created repository Repo1")
         self.assertEqual(repo, self.repo_api.repo(repo['id']))
 
         # Sync
@@ -202,7 +202,7 @@ class TestActivationKeys(BaseTest):
         self.assertEqual(prd['id'], self.prd_api.product(org, prd['id'])['id'])
 
         repo = self.repo_api.create(org, prd, 'http://hhovsepy.fedorapeople.org/fakerepos/zoo4/', 'Repo1')
-        self.logger.debug("Created repositiry Repo1")
+        self.logger.debug("Created repository Repo1")
         self.assertEqual(repo, self.repo_api.repo(repo['id']))
 
         # Sync
@@ -254,7 +254,7 @@ class TestActivationKeys(BaseTest):
         self.assertEqual(prd['id'], self.prd_api.product(org, prd['id'])['id'])
 
         repo = self.repo_api.create(org, prd, 'http://hhovsepy.fedorapeople.org/fakerepos/zoo4/', 'Repo1')
-        self.logger.debug("Created repositiry Repo1")
+        self.logger.debug("Created repository Repo1")
         self.assertEqual(repo, self.repo_api.repo(repo['id']))
 
         # Sync
@@ -351,7 +351,7 @@ class TestActivationKeys(BaseTest):
         self.assertEqual(prd['id'], self.prd_api.product(org, prd['id'])['id'])
 
         repo = self.repo_api.create(org, prd, 'http://hhovsepy.fedorapeople.org/fakerepos/zoo4/', 'Repo1')
-        self.logger.debug("Created repositiry Repo1")
+        self.logger.debug("Created repository Repo1")
         self.assertEqual(repo, self.repo_api.repo(repo['id']))
 
         # Sync
