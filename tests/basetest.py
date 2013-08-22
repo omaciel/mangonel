@@ -12,6 +12,12 @@ except ImportError, e:
     print "Please install the Katello CLI package."
     sys.exit(-1)
 
+try:
+    from nose.plugins.skip import SkipTest
+except ImportError, e:
+    print "Please install python nose."
+    sys.exit(-1)
+
 from mangonel.activationkey import ActivationKey
 from mangonel.changeset import Changeset
 from mangonel.contentview import ContentView
@@ -29,13 +35,13 @@ from mangonel.user import User
 def katello_only():
     "Decorator to allow skipping Headpin-specific tests."
     if os.getenv('PROJECT') in ['/headpin', '/sam']:
-        return unittest.skip("Skipped: Katello specific test.")
+        return SkipTest
     return lambda func: func
 
 def headpin_only():
     "Decorator to allow skipping Headpin-specific tests."
     if os.getenv('PROJECT') in ['/katello']:
-        return unittest.skip("Skipped: Headpin specific test.")
+        return SkipTest
     return lambda func: func
 
 class BaseTest(unittest.TestCase):
