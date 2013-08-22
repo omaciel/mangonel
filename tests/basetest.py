@@ -26,12 +26,25 @@ from mangonel.systemgroup import SystemGroup
 from mangonel.server import Server
 from mangonel.user import User
 
+def katello_only():
+    "Decorator to allow skipping Headpin-specific tests."
+    if os.getenv('PROJECT') in ['/headpin', '/sam']:
+        return unittest.skip("Skipped: Katello specific test.")
+    return lambda func: func
+
+def headpin_only():
+    "Decorator to allow skipping Headpin-specific tests."
+    if os.getenv('PROJECT') in ['/katello']:
+        return unittest.skip("Skipped: Headpin specific test.")
+    return lambda func: func
+
 class BaseTest(unittest.TestCase):
 
     def setUp(self):
         self.host = os.getenv('KATELLO_HOST')
         self.port = os.getenv('KATELLO_PORT', '443')
         self.project = os.getenv('PROJECT', '/katello')
+        self.katello_mode = self.project in ['headpin', 'sam'] and 'headpin' or 'katello'
 
         # Make sure that PROJECT starts with a leading "/"
         if not self.project.startswith("/"): self.project = "/" + self.project
