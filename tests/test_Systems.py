@@ -98,7 +98,7 @@ class TestSystems(BaseTest):
         self.assertEqual(env, self.env_api.environment_by_name(org['label'], 'Release'))
         library = self.env_api.environment_by_name(org['label'], 'Library')
 
-        all_systems = queued_work(self.sys_api.create, org, library, 12, 2)
+        all_systems = queued_work(self.sys_api.create, 12, 2, org, library)
 
         for sys1 in all_systems:
             self.assertEqual(sys1['uuid'], self.sys_api.system(sys1['uuid'])['uuid'])
