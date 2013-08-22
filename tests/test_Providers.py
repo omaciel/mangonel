@@ -112,7 +112,7 @@ class TestProviders(BaseTest):
         self.assertEqual(prv, self.prv_api.provider(prv['id']))
 
         # One CUSTOM provider + RH
-        self.assertEqual(len(self.prv_api.providers_by_org(org['label'])), 2)
+        self.assertEqual(len(self.prv_api.providers_by_org(org)), 2)
 
         prv = self.prv_api.create(org)
         self.logger.info("Created custom provider %s" % prv['name'])
@@ -125,7 +125,7 @@ class TestProviders(BaseTest):
         self.prv_api.delete(prv['id'])
 
         # Back to only one CUSTOM provider + RH
-        self.assertEqual(len(self.prv_api.providers_by_org(org['label'])), 2)
+        self.assertEqual(len(self.prv_api.providers_by_org(org)), 2)
 
     def test_provider_by_name_1(self):
         "Fetches the Red Hat provider by name"
