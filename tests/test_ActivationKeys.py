@@ -1,4 +1,7 @@
+import os
 from basetest import BaseTest
+from basetest import katello_only
+from basetest import headpin_only
 
 from katello.client.server import ServerRequestError
 from mangonel.common import generate_name
@@ -6,23 +9,42 @@ from mangonel.common import wait_for_task
 
 class TestActivationKeys(BaseTest):
 
-    def _generic_activation_key(self):
+    def _generate_headpin_ak(self):
+        "Headpin activation keys don't have the same requirements as Katello's"
+
+        org = self.org_api.create()
+        self.logger.debug("Created organization %s" % org['name'])
+        self.assertEqual(org, self.org_api.organization(org['name']), 'Failed to create and retrieve org.')
+
+        library = self.env_api.environment_by_name(org['label'], 'Library')
+
+        ak1 = self.ak_api.create(library)
+        self.logger.debug("Created activationkey %s" % ak1['name'])
+        self.assertEqual(ak1, self.ak_api.activation_key(org, ak1['id']))
+
+        return (org, library, ak1)
+
+    def _generic_activation_key(self, katello=True):
         "Generates a new activationkey using generic default values"
 
         org = self.org_api.create()
         self.logger.debug("Created organization %s" % org['name'])
         self.assertEqual(org, self.org_api.organization(org['name']), 'Failed to create and retrieve org.')
 
-        pcvd = self.cv_api.content_views_by_label_name_or_id(org, name='Default Organization View')
-
         library = self.env_api.environment_by_name(org['label'], 'Library')
 
-        ak1 = self.ak_api.create(library, cvId=pcvd['id'])
+        if katello:
+            pcvd = self.cv_api.content_views_by_label_name_or_id(org, name='Default Organization View')
+            ak1 = self.ak_api.create(library, cvId=pcvd['id'])
+        else:
+            ak1 = self.ak_api.create(library)
+
         self.logger.debug("Created activationkey %s" % ak1['name'])
         self.assertEqual(ak1, self.ak_api.activation_key(org, ak1['id']))
 
         return (org, library, ak1)
 
+    @katello_only()
     def test_update_ak_1(self):
         "Updates the environment and content view for existing activationkey"
 
@@ -77,7 +99,19 @@ class TestActivationKeys(BaseTest):
         self.assertEqual(env1['id'], ak['environment_id'])
         self.assertEqual(pcvd['id'], ak['content_view_id'])
 
-    def test_update_ak_2(self):
+    @headpin_only()
+    def test_update_ak_name_1(self):
+        "Updates the name for existing activationkey"
+
+        (org, env, ak) = self._generic_activation_key(False)
+
+        new_name = generate_name()
+        self.ak_api.update(org['label'], ak['id'], env['id'], new_name, None, None, None)
+        ak = self.ak_api.activation_key(org, ak['id'])
+        self.assertEqual(new_name, ak['name'])
+
+    @katello_only()
+    def test_update_ak_name_2(self):
         "Updates the name for existing activationkey"
 
         (org, env, ak) = self._generic_activation_key()
@@ -87,7 +121,19 @@ class TestActivationKeys(BaseTest):
         ak = self.ak_api.activation_key(org, ak['id'])
         self.assertEqual(new_name, ak['name'])
 
-    def test_update_ak_3(self):
+    @headpin_only()
+    def test_update_ak_description_1(self):
+        "Updates the description for existing activationkey"
+
+        (org, env, ak) = self._generic_activation_key(False)
+
+        new_description = "Manually changed description %s" % generate_name()
+        self.ak_api.update(org['label'], ak['id'], env['id'], None, new_description, None, None)
+        ak = self.ak_api.activation_key(org, ak['id'])
+        self.assertEqual(new_description, ak['description'])
+
+    @katello_only()
+    def test_update_ak_description_2(self):
         "Updates the description for existing activationkey"
 
         (org, env, ak) = self._generic_activation_key()
@@ -97,7 +143,18 @@ class TestActivationKeys(BaseTest):
         ak = self.ak_api.activation_key(org, ak['id'])
         self.assertEqual(new_description, ak['description'])
 
-    def test_update_ak_4(self):
+    @headpin_only()
+    def test_update_ak_limit_1(self):
+        "Updates the usage limit for existing activationkey"
+
+        (org, env, ak) = self._generic_activation_key(False)
+
+        self.ak_api.update(org['label'], ak['id'], env['id'], None, None, 5, None)
+        ak = self.ak_api.activation_key(org, ak['id'])
+        self.assertEqual(5, ak['usage_limit'])
+
+    @katello_only()
+    def test_update_ak_limit_2(self):
         "Updates the usage limit for existing activationkey"
 
         (org, env, ak) = self._generic_activation_key()
@@ -128,6 +185,7 @@ class TestActivationKeys(BaseTest):
 
         self.assertRaises(ServerRequestError, lambda: self.ak_api.create(env1))
 
+    @katello_only()
     def test_create_ak_2(self):
         "Creates a new activationkey against default content view."
 
@@ -147,6 +205,7 @@ class TestActivationKeys(BaseTest):
         self.logger.debug("Created activationkey %s" % ak1['name'])
         self.assertEqual(ak1, self.ak_api.activation_key(org, ak1['id']))
 
+    @katello_only()
     def test_create_ak_3(self):
         "Creates a new activationkey with no content."
 
@@ -169,7 +228,8 @@ class TestActivationKeys(BaseTest):
         self.logger.debug("Created activationkey %s" % ak1['name'])
         self.assertEqual(ak1, self.ak_api.activation_key(org, ak1['id']))
 
-    def test_add_pool(self):
+    @katello_only()
+    def test_add_pool_1(self):
         "Creates a new activationkey and adds a pool."
 
         org = self.org_api.create()
@@ -221,7 +281,8 @@ class TestActivationKeys(BaseTest):
             self.assertTrue(self.ak_api.has_pool(org, ak1['id'], pool['id']))
             self.logger.debug("Added pool id '%s'' to activationkey '%s'" % (pool['id'], ak1['name']))
 
-    def test_remove_pool(self):
+    @katello_only()
+    def test_remove_pool_1(self):
         "Creates a new activationkey, adds a pool and then removes it."
 
         org = self.org_api.create()
@@ -278,7 +339,38 @@ class TestActivationKeys(BaseTest):
             self.ak_api.remove_pool(org, ak1['id'], pool['id'])
             self.assertFalse(self.ak_api.has_pool(org, ak1['id'], pool['id']))
 
-    def test_activation_key_by_organization(self):
+    @headpin_only()
+    def test_activation_key_by_organization_1(self):
+
+        org = self.org_api.create()
+        self.logger.debug("Created organization %s" % org['name'])
+        self.assertEqual(org, self.org_api.organization(org['name']), 'Failed to create and retrieve org.')
+
+        library = self.env_api.environment_by_name(org['label'], 'Library')
+
+        # First activation key
+        ak1 = self.ak_api.create(library)
+        self.logger.debug("Created activationkey %s" % ak1['name'])
+        self.assertEqual(ak1, self.ak_api.activation_key(org, ak1['id']))
+
+        aks = self.ak_api.activation_keys_by_organization(org['label'])
+        self.assertEqual(len(aks), 1)
+
+        # Second activation key
+        ak2 = self.ak_api.create(library)
+        self.logger.debug("Created activationkey %s" % ak2['name'])
+        self.assertEqual(ak2, self.ak_api.activation_key(org, ak2['id']))
+
+        aks = self.ak_api.activation_keys_by_organization(org['label'])
+        self.assertEqual(len(aks), 2)
+
+        # Can get activation key by name
+        aks = self.ak_api.activation_keys_by_organization(org['label'], ak1['name'])
+        self.assertEqual(len(aks), 1)
+        self.assertEqual(ak1, aks[0])
+
+    @katello_only()
+    def test_activation_key_by_organization_2(self):
 
         org = self.org_api.create()
         self.logger.debug("Created organization %s" % org['name'])
@@ -313,7 +405,30 @@ class TestActivationKeys(BaseTest):
         self.assertEqual(len(aks), 1)
         self.assertEqual(ak1, aks[0])
 
-    def test_activation_key_by_environment(self):
+    @headpin_only()
+    def test_activation_key_by_environment_1(self):
+
+        org = self.org_api.create()
+        self.logger.debug("Created organization %s" % org['name'])
+        self.assertEqual(org, self.org_api.organization(org['name']), 'Failed to create and retrieve org.')
+
+        library = self.env_api.environment_by_name(org['label'], 'Library')
+
+        # First activation key
+        ak1 = self.ak_api.create(library)
+        self.logger.debug("Created activationkey %s" % ak1['name'])
+        self.assertEqual(ak1, self.ak_api.activation_key(org, ak1['id']))
+
+        # Second activation key
+        ak2 = self.ak_api.create(library)
+        self.logger.debug("Created activationkey %s" % ak2['name'])
+        self.assertEqual(ak2, self.ak_api.activation_key(org, ak2['id']))
+
+        aks = self.ak_api.activation_keys_by_environment(library['id'])
+        self.assertEqual(len(aks), 2)
+
+    @katello_only()
+    def test_activation_key_by_environment_2(self):
 
         org = self.org_api.create()
         self.logger.debug("Created organization %s" % org['name'])
@@ -387,7 +502,25 @@ class TestActivationKeys(BaseTest):
         aks = self.ak_api.activation_keys_by_environment(env1['id'])
         self.assertEqual(len(aks), 1)
 
-    def test_delete_activation_key(self):
+    @headpin_only()
+    def test_delete_activation_key_1(self):
+
+        org = self.org_api.create()
+        self.logger.debug("Created organization %s" % org['name'])
+        self.assertEqual(org, self.org_api.organization(org['name']), 'Failed to create and retrieve org.')
+
+        library = self.env_api.environment_by_name(org['label'], 'Library')
+
+        ak1 = self.ak_api.create(library)
+        self.logger.debug("Created activationkey %s" % ak1['name'])
+        self.assertEqual(ak1, self.ak_api.activation_key(org, ak1['id']))
+
+        # Now, delete it
+        self.ak_api.delete(org, ak1['id'])
+        self.assertRaises(ServerRequestError, lambda: self.ak_api.activation_key(org, ak1['id']))
+
+    @katello_only()
+    def test_delete_activation_key_2(self):
 
         org = self.org_api.create()
         self.logger.debug("Created organization %s" % org['name'])
