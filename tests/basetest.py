@@ -44,7 +44,6 @@ class BaseTest(unittest.TestCase):
         self.host = os.getenv('KATELLO_HOST')
         self.port = os.getenv('KATELLO_PORT', '443')
         self.project = os.getenv('PROJECT', '/katello')
-        self.katello_mode = self.project in ['headpin', 'sam'] and 'headpin' or 'katello'
 
         # Make sure that PROJECT starts with a leading "/"
         if not self.project.startswith("/"): self.project = "/" + self.project
