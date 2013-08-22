@@ -1,6 +1,8 @@
 import time
 
 from basetest import BaseTest
+from basetest import headpin_only
+from basetest import katello_only
 
 from katello.client.server import ServerRequestError
 
@@ -90,6 +92,7 @@ class TestStress(BaseTest):
                 self.logger.info("Total time spent for %s organizations using %s threads: %f" % (outter, inner, total_system_time))
                 self.logger.info("Mean time: %f" % (total_system_time / outter))
 
+    @katello_only()
     def test_providers(self):
 
         for outter in JOB_SAMPLES:
@@ -114,7 +117,8 @@ class TestStress(BaseTest):
                 self.logger.info("Total time spent for %s providers using %s threads: %f" % (outter, inner, total_system_time))
                 self.logger.info("Mean time: %f" % (total_system_time / outter))
 
-    def test_systems(self):
+    @katello_only()
+    def test_systems_1(self):
 
         for outter in JOB_SAMPLES:
             for inner in JOB_THREADS:
@@ -135,6 +139,31 @@ class TestStress(BaseTest):
                     for pool in pools:
                         self.sys_api.subscribe(sys1['uuid'], pool['id'])
                         self.logger.debug("Subscribe system to pool %s" % pool['id'])
+
+                total_system_time = end_time - start_time
+                self.logger.info("Total time spent for %s systems using %s threads: %f" % (outter, inner, total_system_time))
+                self.logger.info("Mean time: %f" % (total_system_time / outter))
+
+    @headpin_only()
+    def test_systems_2(self):
+
+        for outter in JOB_SAMPLES:
+            for inner in JOB_THREADS:
+
+                org = self.org_api.create()
+                env = self.env_api.environment_by_name(org['label'], 'Library')
+
+                start_time = time.time()
+
+                all_systems = queued_work(self.sys_api.create, outter, inner, org, env)
+
+                end_time = time.time()
+
+                for sys1 in all_systems:
+                    self.assertEqual(sys1['uuid'], self.sys_api.system(sys1['uuid'])['uuid'])
+
+                #TODO: Add support for adding a manifest and
+                #subscribing systems to a pool
 
                 total_system_time = end_time - start_time
                 self.logger.info("Total time spent for %s systems using %s threads: %f" % (outter, inner, total_system_time))
