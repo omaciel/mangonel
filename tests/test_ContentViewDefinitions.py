@@ -1,8 +1,10 @@
 from basetest import BaseTest
+from basetest import runIf
 
 from katello.client.server import ServerRequestError
 from mangonel.common import generate_name
 
+@runIf('katello')
 class TestContentViewDefinitions(BaseTest):
 
     def test_create_content_view_definition_1(self):

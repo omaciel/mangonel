@@ -1,8 +1,10 @@
 from basetest import BaseTest
+from basetest import runIf
 
 from katello.client.server import ServerRequestError
 from mangonel.common import wait_for_task
 
+@runIf('katello')
 class TestContentViews(BaseTest):
 
     def test_create_content_view_1(self):
