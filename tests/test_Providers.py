@@ -1,6 +1,5 @@
 from basetest import BaseTest
-from basetest import headpin_only
-from basetest import katello_only
+from basetest import runIf
 
 from katello.client.server import ServerRequestError
 from mangonel.common import generate_name
@@ -21,7 +20,7 @@ class TestProviders(BaseTest):
 
         return (org, library)
 
-    @katello_only()
+    @runIf('katello')
     def test_create_provider_1(self):
         "Creates a basic provider"
 
@@ -31,7 +30,7 @@ class TestProviders(BaseTest):
         self.logger.info("Created custom provider %s" % prv['name'])
         self.assertEqual(prv, self.prv_api.provider(prv['id']))
 
-    @katello_only()
+    @runIf('katello')
     def test_delete_provider_1(self):
         "Creates a basic provider, then deletes it"
 
@@ -53,7 +52,7 @@ class TestProviders(BaseTest):
         rh_provider = self.prv_api.provider_by_name(org['label'], 'Red Hat')
         self.assertRaises(ServerRequestError, lambda: self.prv_api.delete(rh_provider['id']))
 
-    @katello_only()
+    @runIf('katello')
     def test_update_provider_1(self):
         "Updates the provider's name"
 
@@ -68,7 +67,7 @@ class TestProviders(BaseTest):
         updt_prv = self.prv_api.provider(prv['id'])
         self.assertEqual(new_name, updt_prv['name'])
 
-    @katello_only()
+    @runIf('katello')
     def test_update_provider_2(self):
         "Updates the provider's description"
 
@@ -83,7 +82,7 @@ class TestProviders(BaseTest):
         updt_prv = self.prv_api.provider(prv['id'])
         self.assertEqual(new_description, updt_prv['description'])
 
-    @katello_only()
+    @runIf('katello')
     def test_update_provider_3(self):
         "Updates the provider's repo url"
 
@@ -98,7 +97,7 @@ class TestProviders(BaseTest):
         updt_prv = self.prv_api.provider(prv['id'])
         self.assertEqual(new_url, updt_prv['repository_url'])
 
-    @katello_only()
+    @runIf('katello')
     def test_providers_by_org_1(self):
         "Fetches only the providers for an organization"
 
@@ -139,7 +138,7 @@ class TestProviders(BaseTest):
 
         self.assertFalse(self.prv_api.provider_by_name(org1['label'], 'Foo'))
 
-    @katello_only()
+    @runIf('katello')
     def test_provider_by_name_2(self):
         "Fetches providers by name"
 
@@ -163,7 +162,7 @@ class TestProviders(BaseTest):
         prv = self.prv_api.provider_by_name(org1['label'], prv2['name'])
         self.assertEqual(prv, None)
 
-    @katello_only()
+    @runIf('katello')
     def test_repo_discovery_1(self):
         "Repo discovery"
 

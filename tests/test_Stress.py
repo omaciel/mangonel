@@ -1,8 +1,7 @@
 import time
 
 from basetest import BaseTest
-from basetest import headpin_only
-from basetest import katello_only
+from basetest import runIf
 
 from katello.client.server import ServerRequestError
 
@@ -92,7 +91,7 @@ class TestStress(BaseTest):
                 self.logger.info("Total time spent for %s organizations using %s threads: %f" % (outter, inner, total_system_time))
                 self.logger.info("Mean time: %f" % (total_system_time / outter))
 
-    @katello_only()
+    @runIf('katello')
     def test_providers(self):
 
         for outter in JOB_SAMPLES:
@@ -117,7 +116,7 @@ class TestStress(BaseTest):
                 self.logger.info("Total time spent for %s providers using %s threads: %f" % (outter, inner, total_system_time))
                 self.logger.info("Mean time: %f" % (total_system_time / outter))
 
-    @katello_only()
+    @runIf('katello')
     def test_systems_1(self):
 
         for outter in JOB_SAMPLES:
@@ -144,7 +143,7 @@ class TestStress(BaseTest):
                 self.logger.info("Total time spent for %s systems using %s threads: %f" % (outter, inner, total_system_time))
                 self.logger.info("Mean time: %f" % (total_system_time / outter))
 
-    @headpin_only()
+    @runIf('headpin')
     def test_systems_2(self):
 
         for outter in JOB_SAMPLES:

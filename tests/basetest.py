@@ -32,17 +32,16 @@ from mangonel.systemgroup import SystemGroup
 from mangonel.server import Server
 from mangonel.user import User
 
-def katello_only():
-    "Decorator to allow skipping Headpin-specific tests."
-    if os.getenv('PROJECT') in ['/headpin', '/sam']:
-        return SkipTest
-    return lambda func: func
+def runIf(project):
+    "Decorator to skip tests based on server mode"
+    mode = os.getenv('PROJECT').replace('/', '')
 
-def headpin_only():
-    "Decorator to allow skipping Headpin-specific tests."
-    if os.getenv('PROJECT') in ['/katello']:
-        return SkipTest
-    return lambda func: func
+    if mode == 'sam':
+        mode = 'headpin'
+
+    if project == mode:
+        return lambda func: func
+    return SkipTest
 
 class BaseTest(unittest.TestCase):
 
