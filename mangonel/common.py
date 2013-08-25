@@ -24,14 +24,19 @@ packages = json.load(open(os.path.join(os.path.dirname(__file__), 'packages.json
 REQUEST_DELAY = 10
 MAX_ATTEMPTS = 720
 
-def uptime():
-    "Checks the local system's load average"
+def uptime(server):
+    "Checks the system's load average"
 
-    #TODO: handle running it remotely on server using Paramiko?
-    process = subprocess.Popen(['uptime'], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    try:
+        import paramiko
+    except ImportError, e:
+        print "Please install paramiko"
+        raise
 
-    return process.communicate()[0]
+    key = paramiko.RSAKey(data=base64.decodestring(os.getenv['SSH_KEY']))
 
+    client = paramiko.SSHClient()
+    
 def wait_for_task(task_uuid):
     "Waits for a task to complete, error out or timeout"
 
