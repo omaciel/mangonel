@@ -28,7 +28,9 @@ def uptime():
     "Checks the local system's load average"
 
     #TODO: handle running it remotely on server using Paramiko?
-    return subprocess.check_output(['uptime'])
+    process = subprocess.Popen(['uptime'], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    return process.communicate()[0]
 
 def wait_for_task(task_uuid):
     "Waits for a task to complete, error out or timeout"
