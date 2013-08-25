@@ -6,6 +6,7 @@ from basetest import runIf
 from katello.client.server import ServerRequestError
 
 from mangonel.common import queued_work
+from mangonel.common import uptime
 from mangonel.common import wait_for_task
 
 JOB_SAMPLES = [128, 256, 512, 1024, 2048, 4096]
@@ -84,12 +85,15 @@ class TestStress(BaseTest):
 
                 end_time = time.time()
 
+                load_avg = uptime()
+
                 for org in all_organizations:
                     self.assertTrue(self.org_api.organization(org['name']))
 
                 total_system_time = end_time - start_time
                 self.logger.info("Total time spent for %s organizations using %s threads: %f" % (outter, inner, total_system_time))
                 self.logger.info("Mean time: %f" % (total_system_time / outter))
+                self.logger.info("Load average: %s" % load_avg)
 
     @runIf('katello')
     def test_providers(self):
@@ -109,12 +113,15 @@ class TestStress(BaseTest):
 
                 end_time = time.time()
 
+                load_avg = uptime()
+
                 for prv in all_providers:
                     self.assertEqual(prv, self.prv_api.provider(prv['id']))
 
                 total_system_time = end_time - start_time
                 self.logger.info("Total time spent for %s providers using %s threads: %f" % (outter, inner, total_system_time))
                 self.logger.info("Mean time: %f" % (total_system_time / outter))
+                self.logger.info("Load average: %s" % load_avg)
 
     @runIf('katello')
     def test_systems_1(self):
@@ -130,6 +137,8 @@ class TestStress(BaseTest):
 
                 end_time = time.time()
 
+                load_avg = uptime()
+
                 for sys1 in all_systems:
                     self.assertEqual(sys1['uuid'], self.sys_api.system(sys1['uuid'])['uuid'])
 
@@ -142,6 +151,7 @@ class TestStress(BaseTest):
                 total_system_time = end_time - start_time
                 self.logger.info("Total time spent for %s systems using %s threads: %f" % (outter, inner, total_system_time))
                 self.logger.info("Mean time: %f" % (total_system_time / outter))
+                self.logger.info("Load average: %s" % load_avg)
 
     @runIf('headpin')
     def test_systems_2(self):
@@ -158,6 +168,8 @@ class TestStress(BaseTest):
 
                 end_time = time.time()
 
+                load_avg = uptime()
+
                 for sys1 in all_systems:
                     self.assertEqual(sys1['uuid'], self.sys_api.system(sys1['uuid'])['uuid'])
 
@@ -167,3 +179,4 @@ class TestStress(BaseTest):
                 total_system_time = end_time - start_time
                 self.logger.info("Total time spent for %s systems using %s threads: %f" % (outter, inner, total_system_time))
                 self.logger.info("Mean time: %f" % (total_system_time / outter))
+                self.logger.info("Load average: %s" % load_avg)
