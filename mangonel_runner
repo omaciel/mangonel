@@ -28,7 +28,7 @@ if __name__ == "__main__":
     parser.add_option('--project', type=str, dest='project', default='/katello', help='Project can be either "katello" or "headpin"')
     parser.add_option('--port', type=str, dest='port', default='443', help='Server port, defaults to 443')
     parser.add_option('-t', '--tests', type=str, action='append', help='The name of the tests to be run.')
-    parser.add_option('--verbose', type='choice',  choices=['1', '2', '3', '4', '5'], default='3', help='Debug verbosity level')
+    parser.add_option('--verbose', type='choice',  choices=['1', '2', '3', '4', '5'], default='1', help='Debug verbosity level')
 
     parser.add_option('--sshkey', type=str, dest='sshkey', default=os.path.expanduser('~/.ssh/id_rsa'), help='Path to ssh key to connect to server.')
     parser.add_option('--root', type=str, dest='root', default='root', help='User name to connect to server via ssh. Most of the time the default "root" will work.')
