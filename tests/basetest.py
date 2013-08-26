@@ -62,7 +62,9 @@ class BaseTest(unittest.TestCase):
                        password=self.password,
                        port=self.port)
 
-        self.verbosity = int(os.getenv('VERBOSITY', 3))
+        self.verbosity = int(os.getenv('VERBOSITY', 2))
+        self.ssh_key = os.getenv('SSH_KEY', os.path.expanduser('~/.ssh/id_rsa'))
+        self.root = os.getenv('ROOT', 'root')
 
         logging.config.fileConfig("logging.conf")
 
@@ -89,3 +91,23 @@ class BaseTest(unittest.TestCase):
 
         self.ellapsed_time = time.time() - self.start_time
         self.logger.info("Test ellapsed time: %s" % self.ellapsed_time)
+
+    def uptime(self):
+        "Checks the system's load average"
+
+        try:
+            import paramiko
+        except ImportError, e:
+            return "Please install paramiko to obtain the system load average."
+
+        if self.root is None or self.ssh_key is None:
+            return "Please provide the required credentials to ssh to the remote server."
+
+        ssh_client = paramiko.SSHClient()
+        ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+        ssh_client.connect(self.host, username=self.root, key_filename=self.ssh_key)
+
+        stdin, stdout, stderr = ssh_client.exec_command('uptime')
+
+        return stdout.readlines()[0]

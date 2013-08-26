@@ -24,19 +24,6 @@ packages = json.load(open(os.path.join(os.path.dirname(__file__), 'packages.json
 REQUEST_DELAY = 10
 MAX_ATTEMPTS = 720
 
-def uptime(server):
-    "Checks the system's load average"
-
-    try:
-        import paramiko
-    except ImportError, e:
-        print "Please install paramiko"
-        raise
-
-    key = paramiko.RSAKey(data=base64.decodestring(os.getenv['SSH_KEY']))
-
-    client = paramiko.SSHClient()
-    
 def wait_for_task(task_uuid):
     "Waits for a task to complete, error out or timeout"
 

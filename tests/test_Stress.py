@@ -6,7 +6,6 @@ from basetest import runIf
 from katello.client.server import ServerRequestError
 
 from mangonel.common import queued_work
-from mangonel.common import uptime
 from mangonel.common import wait_for_task
 
 JOB_SAMPLES = [128, 256, 512, 1024, 2048, 4096]
@@ -85,7 +84,7 @@ class TestStress(BaseTest):
 
                 end_time = time.time()
 
-                load_avg = uptime()
+                load_avg = self.uptime()
 
                 for org in all_organizations:
                     self.assertTrue(self.org_api.organization(org['name']))
@@ -113,7 +112,7 @@ class TestStress(BaseTest):
 
                 end_time = time.time()
 
-                load_avg = uptime()
+                load_avg = self.uptime()
 
                 for prv in all_providers:
                     self.assertEqual(prv, self.prv_api.provider(prv['id']))
@@ -137,7 +136,7 @@ class TestStress(BaseTest):
 
                 end_time = time.time()
 
-                load_avg = uptime()
+                load_avg = self.uptime()
 
                 for sys1 in all_systems:
                     self.assertEqual(sys1['uuid'], self.sys_api.system(sys1['uuid'])['uuid'])
@@ -168,7 +167,7 @@ class TestStress(BaseTest):
 
                 end_time = time.time()
 
-                load_avg = uptime()
+                load_avg = self.uptime()
 
                 for sys1 in all_systems:
                     self.assertEqual(sys1['uuid'], self.sys_api.system(sys1['uuid'])['uuid'])
