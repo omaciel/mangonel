@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 
+import argparse
 import os
 import sys
 import unittest
-
-from optparse import OptionParser
 
 # katello-cli requires kerberos module
 try:
@@ -20,21 +19,20 @@ if __name__ == "__main__":
     epilog = "Constructive comments and feedback can be sent to Og Maciel <omaciel at ogmaciel dot com>."
     version = "%(prog)s 0.1"
 
-    parser = OptionParser(prog=prog, usage=usage, description=description, epilog=epilog, version=version)
+    parser = argparse.ArgumentParser(prog=prog, usage=usage, description=description, epilog=epilog, version=version)
 
-    parser.add_option('-s', '--host', type=str, dest='host', help='Server url')
-    parser.add_option('-u', '--username', type=str, dest='username', default='admin', help='Valid system username')
-    parser.add_option('-p', '--password', type=str, dest='password', default='admin', help='Valid system user password')
-    parser.add_option('--project', type=str, dest='project', default='/katello', help='Project can be either "katello" or "headpin"')
-    parser.add_option('--port', type=str, dest='port', default='443', help='Server port, defaults to 443')
-    parser.add_option('-t', '--tests', type=str, action='append', help='The name of the tests to be run.')
-    parser.add_option('--verbose', type='choice',  choices=['1', '2', '3', '4', '5'], default='1', help='Debug verbosity level')
+    parser.add_argumment('-s', '--host', type=str, dest='host', help='Server url')
+    parser.add_argumment('-u', '--username', type=str, dest='username', default='admin', help='Valid system username')
+    parser.add_argumment('-p', '--password', type=str, dest='password', default='admin', help='Valid system user password')
+    parser.add_argumment('--project', type=str, dest='project', default='/katello', help='Project can be either "katello" or "headpin"')
+    parser.add_argumment('--port', type=str, dest='port', default='443', help='Server port, defaults to 443')
+    parser.add_argumment('-t', '--tests', type=str, action='append', help='The name of the tests to be run.')
+    parser.add_argumment('--verbose', type=int,  choices=range(1, 6), default=1, help='Debug verbosity level')
 
-    parser.add_option('--sshkey', type=str, dest='sshkey', default=os.path.expanduser('~/.ssh/id_rsa'), help='Path to ssh key to connect to server.')
-    parser.add_option('--root', type=str, dest='root', default='root', help='User name to connect to server via ssh. Most of the time the default "root" will work.')
+    parser.add_argumment('--sshkey', type=str, dest='sshkey', default=os.path.expanduser('~/.ssh/id_rsa'), help='Path to ssh key to connect to server.')
+    parser.add_argumment('--root', type=str, dest='root', default='root', help='User name to connect to server via ssh. Most of the time the default "root" will work.')
 
-
-    (options, ignored_options) = parser.parse_args()
+    [options, ignored_options] = parser.parse_known_args()
 
     # Validation
     if options.host is None:
