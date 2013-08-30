@@ -12,12 +12,6 @@ except ImportError, e:
     print "Please install the Katello CLI package."
     sys.exit(-1)
 
-try:
-    from nose.plugins.skip import SkipTest
-except ImportError, e:
-    print "Please install python nose."
-    sys.exit(-1)
-
 from mangonel.activationkey import ActivationKey
 from mangonel.changeset import Changeset
 from mangonel.contentview import ContentView
@@ -41,7 +35,7 @@ def runIf(project):
 
     if project == mode:
         return lambda func: func
-    return SkipTest
+    return unittest.skip("%s specific test.")
 
 class BaseTest(unittest.TestCase):
 
