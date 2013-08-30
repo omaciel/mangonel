@@ -35,7 +35,7 @@ def runIf(project):
 
     if project == mode:
         return lambda func: func
-    return unittest.skip("%s specific test." % mode)
+    return unittest.skip("%s specific test." % project)
 
 class BaseTest(unittest.TestCase):
 
