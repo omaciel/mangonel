@@ -94,6 +94,26 @@ class TestStress(BaseTest):
                 self.logger.info("Mean time: %f" % (total_system_time / outter))
                 self.logger.info("Load average: %s" % load_avg)
 
+    def test_organizations_2(self):
+
+        for org in range(1, 1000):
+
+            start_time = time.time()
+            self.org_api.create()
+            end_time = time.time()
+
+            org_creation_time = end_time - start_time
+
+            start_time = time.time()
+            total_orgs = self.org_api.organizations()
+            end_time = time.time()
+
+            org_fetch_time = end_time - start_time
+
+            load_avg = self.uptime()
+
+            self.logger.info("Creation time: %f, Fetch time: %f, Load: %s" % (org_creation_time, org_fetch_time, load_avg))
+
     @runIf('katello')
     def test_providers(self):
 
