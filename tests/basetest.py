@@ -94,6 +94,9 @@ class BaseTest(unittest.TestCase):
         except ImportError, e:
             return "Please install paramiko to obtain the system load average."
 
+        # Make paramiko less chatty
+        logging.getLogger("paramiko").setLevel(logging.ERROR)
+
         if self.root is None or self.ssh_key is None:
             return "Please provide the required credentials to ssh to the remote server."
 
