@@ -8,7 +8,7 @@ from katello.client.server import ServerRequestError
 from mangonel.common import queued_work
 from mangonel.common import wait_for_task
 
-JOB_SAMPLES = [128, 256, 512, 1024, 2048, 4096]
+JOB_SAMPLES = [200]
 JOB_THREADS = [1, 2, 4, 8, 16]
 
 
@@ -199,3 +199,8 @@ class TestStress(BaseTest):
                 self.logger.info("Total time spent for %s systems using %s threads: %f" % (outter, inner, total_system_time))
                 self.logger.info("Mean time: %f" % (total_system_time / outter))
                 self.logger.info("Load average: %s" % load_avg)
+
+    def test_foo(self):
+
+        foo = self.uptime()
+        self.logger.info("Load average: %s" % foo)
