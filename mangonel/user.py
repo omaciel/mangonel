@@ -1,9 +1,6 @@
 from common import *
 
-import datetime
-import json
 import sys
-import time
 
 try:
     from katello.client.api.user import UserAPI
