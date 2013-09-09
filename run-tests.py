@@ -49,7 +49,7 @@ params = [
     '--cover-package',
     ",".join(["katello.client.api.%s" % x for x in PACKAGES]),
     "--tests",
-    ",".join("test.%s" % test_name for test_name in TESTS),
+    ",".join("tests.%s" % test_name for test_name in TESTS),
 ]
 
 subprocess.call(params, env=env)
