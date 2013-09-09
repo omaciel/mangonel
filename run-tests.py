@@ -14,6 +14,8 @@ PROJECT_DIR = os.path.abspath(os.path.curdir)
 
 subprocess.call(['find', PROJECT_DIR, '-name', '*.pyc', '-delete'])
 
+TESTS = [x.split('/')[-1][:-3] for x in glob.glob("%s/tests/test_*.py" % PROJECT_DIR) if 'test_Stress.py' not in x]
+
 parser = argparse.ArgumentParser()
 
 parser.add_argument('-s', '--host', type=str, dest='host', help='Server url')
@@ -46,6 +48,8 @@ params = [
     '--cover-erase',
     '--cover-package',
     ",".join(["katello.client.api.%s" % x for x in PACKAGES]),
+    "--tests",
+    ",".join(test_name for test_name in TESTS),
 ]
 
 subprocess.call(params, env=env)
