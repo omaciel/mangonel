@@ -112,7 +112,7 @@ class TestUsers(BaseTest):
         user = self.user_api.user(user['id'])
         self.assertEqual('pt-BR', user['preferences']['user']['locale'])
 
-        ['preferences']['user']['locale']
+
     def test_delete_user_1(self):
         "Creates and deletes a system user."
 
