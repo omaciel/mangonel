@@ -199,8 +199,3 @@ class TestStress(BaseTest):
                 self.logger.info("Total time spent for %s systems using %s threads: %f" % (outter, inner, total_system_time))
                 self.logger.info("Mean time: %f" % (total_system_time / outter))
                 self.logger.info("Load average: %s" % load_avg)
-
-    def test_foo(self):
-
-        foo = self.uptime()
-        self.logger.info("Load average: %s" % foo)
