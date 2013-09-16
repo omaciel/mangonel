@@ -18,6 +18,7 @@ from mangonel.contentview import ContentView
 from mangonel.contentviewdefinition import ContentViewDefinition
 from mangonel.environment import Environment
 from mangonel.organization import Organization
+from mangonel.permission import Permission
 from mangonel.product import Product
 from mangonel.provider import Provider
 from mangonel.repository import Repository
@@ -25,6 +26,7 @@ from mangonel.system import System
 from mangonel.systemgroup import SystemGroup
 from mangonel.server import Server
 from mangonel.user import User
+from mangonel.user_role import UserRole
 
 def runIf(project):
     "Decorator to skip tests based on server mode"
@@ -71,12 +73,14 @@ class BaseTest(unittest.TestCase):
         self.cvd_api = ContentViewDefinition()
         self.env_api = Environment()
         self.org_api = Organization()
+        self.perm_api = Permission()
         self.prd_api = Product()
         self.prv_api = Provider()
         self.repo_api = Repository()
         self.sys_api = System()
         self.sys_grp_api = SystemGroup()
         self.user_api = User()
+        self.role_api = UserRole()
 
         self.start_time = time.time()
 
